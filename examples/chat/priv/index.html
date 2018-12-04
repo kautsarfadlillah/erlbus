@@ -5,10 +5,13 @@
       <script src="/assets/jquery.js"></script>
       <script type="text/javascript">
         var websocket;
+        var roomname;
+        var username;
+
         jQuery(document).ready(init);
 
         function init() {
-          jQuery("#roomContainer").hide();  
+          jQuery("#roomContainer").hide();
           jQuery("#alertContainer").hide();
           jQuery("#connectButton").hide();
           if(!("WebSocket" in window)){  
@@ -19,19 +22,35 @@
         };
 
         function connect() {
-        wsHost = "ws://" + window.location.host + "/websocket";
-        websocket = new WebSocket(wsHost);
-        websocket.onopen = function(evt) { onOpen(evt) }; 
-        websocket.onclose = function(evt) { onClose(evt) }; 
-        websocket.onmessage = function(evt) { onMessage(evt) }; 
-        websocket.onerror = function(evt) { onError(evt) }; 
-      }; 
+          roomname = jQuery("#roomNameInput").val();
+          username = jQuery("#userNameInput").val();
+
+          if (roomname.length > 0 && username.length > 0) {
+            jQuery("#alertContainer").hide();
+
+            wsHost = "ws://" + window.location.host + "/websocket/" + roomname + "/" + username;
+            websocket = new WebSocket(wsHost);
+            websocket.onopen = function(evt) { onOpen(evt) }; 
+            websocket.onclose = function(evt) { onClose(evt) }; 
+            websocket.onmessage = function(evt) { onMessage(evt) }; 
+            websocket.onerror = function(evt) { onError(evt) }; 
+          } else {
+            showAlert('<span style="color: blue;">Please fill roomname and username first before joining the chatroom</span>');
+          }
+        }; 
+
+        function leave() {
+          location.reload(true);
+        }
 
       function onOpen(evt) { 
+        jQuery('#chatContainer').empty();
+        jQuery('#inputContainer').fadeOut('slow');
         jQuery('#roomContainer').fadeIn('slow');
       };  
 
       function onClose(evt) { 
+        jQuery('#inputContainer').fadeIn('slow');
         jQuery('#roomContainer').fadeOut('slow');
         showAlert('<span style="color: red;">Websocket connection has been closed!</span>');
       };  
@@ -62,6 +81,7 @@
         jQuery("#alertContainer").html(txt);
         jQuery("#alertContainer").show();
       }
+
       </script>
       <style>
         #chatContainer {
@@ -72,8 +92,14 @@
       </style>
   </head>
   <body>
-    <div id="alertContainer"></div>
-    <input id="connectButton" type="button" value="Join the Chat Room!" onclick="connect();"/>
+    <div id="inputContainer">
+      <div id="alertContainer"></div>
+      Roomname : <br>
+      <input id="roomNameInput" type="text" /> <br>
+      Username : <br>
+      <input id="userNameInput" type="text" /> <br>
+      <input id="connectButton" type="button" value="Join the Chat Room!" onclick="connect();"/>
+    </div>
 
     <div id="roomContainer">
       <div id="chatContainer"></div>
@@ -85,6 +111,7 @@
           <input type="submit" value="send"/> 
         </span>
       </form>
+      <input id="leaveButton" type="button" value="leave chatroom" onclick="leave();"/>
     </div>
   </body>
 </html>
