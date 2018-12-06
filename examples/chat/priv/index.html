@@ -74,7 +74,11 @@
       };
 
       function showMessage(data) {
-        jQuery('#chatContainer').append('<div>' + data.sender + ' -> ' + data.msg + '</div>');
+        if (data.sender) {
+          jQuery('#chatContainer').append('<div>[' + data.time + '] ' + data.sender + ' → ' + data.msg + '</div>');  
+        } else {
+          jQuery('#chatContainer').append('<span style="color: blue;"> <div>[' + data.time + '] ' + data.msg + '</div> </span>');
+        }
       };
 
       function showAlert(txt) {
@@ -95,9 +99,9 @@
     <div id="inputContainer">
       <div id="alertContainer"></div>
       Roomname : <br>
-      <input id="roomNameInput" type="text" /> <br>
+      <input id="roomNameInput" placeholder="Roomname" type="text" /> <br>
       Username : <br>
-      <input id="userNameInput" type="text" /> <br>
+      <input id="userNameInput" placeholder="Username" type="text" /> <br>
       <input id="connectButton" type="button" value="Join the Chat Room!" onclick="connect();"/>
     </div>
 
@@ -105,7 +109,7 @@
       <div id="chatContainer"></div>
       <form onsubmit="sendMessage(); return false;">
         <span>
-          <input id="textToSend" type="text" />
+          <input id="textToSend" placeholder="Type a message" type="text" />
         </span>
         <span>
           <input type="submit" value="send"/> 
